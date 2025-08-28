@@ -4,515 +4,288 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Jakov's Task Manager</title>
-<link rel="manifest" href="manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --primary-color: #9333ea;
-    --secondary-color: #3b82f6;
-    --background-gradient: linear-gradient(135deg, #60a5fa, #a78bfa);
-    --text-color: #1f2937;
-    --card-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    --glass-bg: rgba(255, 255, 255, 0.2);
-    --glass-blur: blur(10px);
+    --primary: #6366f1;
+    --secondary: #8b5cf6;
+    --danger: #ef4444;
+    --success: #22c55e;
+    --bg-gradient: linear-gradient(135deg, #60a5fa, #a78bfa);
+    --glass: rgba(255,255,255,0.25);
+    --blur: blur(12px);
+    --text: #1f2937;
+    --shadow: 0 6px 16px rgba(0,0,0,0.2);
     --transition: all 0.3s ease;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'Poppins', sans-serif;
-    background: var(--background-gradient);
+    background: var(--bg-gradient);
     min-height: 100vh;
     padding: 20px;
-    color: var(--text-color);
+    color: var(--text);
   }
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  .header {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 30px;
-  }
+  .container { max-width: 900px; margin: 0 auto; }
+  .header { display: flex; justify-content: center; margin-bottom: 20px; }
   .header h1 {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
-    color: var(--text-color);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
   }
-  .task-container {
-    display: flex;
-    gap: 20px;
-    flex-direction: row;
+  .input-toggle { display: flex; justify-content: center; margin-bottom: 15px; }
+  .add-btn {
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: var(--transition);
   }
+  .add-btn:hover { transform: scale(1.1); }
   .input-frame {
-    flex: 1;
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    border-radius: 12px;
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    border-radius: 16px;
     padding: 20px;
-    box-shadow: var(--card-shadow);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    min-width: 300px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255,255,255,0.3);
   }
-  .tasks-list {
-    flex: 2;
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: var(--card-shadow);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-  }
-  .input-group {
-    margin-bottom: 15px;
-  }
-  label {
-    display: block;
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-color);
-    margin-bottom: 8px;
-  }
-  input[type='text'], textarea, select {
+  .input-group { margin-bottom: 15px; }
+  label { display: block; font-weight: 600; margin-bottom: 6px; color: #fff; }
+  input[type="text"], textarea, select {
     width: 100%;
     padding: 12px;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.8);
     font-size: 1rem;
-    background: rgba(255, 255, 255, 0.3);
-    color: var(--text-color);
     transition: var(--transition);
   }
-  input[type='text']::placeholder, textarea::placeholder {
-    color: #4b5563;
-  }
-  input[type='text']:focus, textarea:focus, select:focus {
+  input:focus, textarea:focus, select:focus {
     outline: none;
-    border-color: var(--secondary-color);
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.3);
   }
-  textarea { resize: vertical; min-height: 100px; }
-  .file-input-wrapper {
-    margin: 15px 0;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  input[type='file'] { display: none; }
+  textarea { min-height: 80px; resize: vertical; }
   .file-input-label {
     display: inline-block;
-    padding: 10px 20px;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    padding: 10px 16px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: #fff;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
     transition: var(--transition);
   }
-  .file-input-label:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
+  .file-input-label:hover { transform: scale(1.05); }
   .btn {
-    padding: 12px 20px;
+    padding: 10px 16px;
     border: none;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: #fff;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     font-weight: 600;
     font-size: 1rem;
+    color: #fff;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     transition: var(--transition);
   }
-  .btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  .btn.secondary {
-    background: linear-gradient(135deg, #6b7280, #4b5563);
-  }
-  .btn.secondary:hover {
-    background: linear-gradient(135deg, #4b5563, #374151);
+  .btn:hover { transform: scale(1.05); }
+  .btn.secondary { background: #4b5563; }
+  .btn.secondary:hover { background: #374151; }
+  .tasks-list {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: var(--shadow);
   }
   .task {
-    padding: 20px;
-    margin-bottom: 15px;
-    border-radius: 12px;
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    box-shadow: var(--card-shadow);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    transition: var(--transition);
-    cursor: move;
-    animation: fadeIn 0.4s ease;
-  }
-  .task:hover {
-    transform: scale(1.02);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-  }
-  .task.dragging {
-    opacity: 0.7;
-    border: 2px dashed var(--text-color);
-  }
-  .task.completed { background: rgba(248, 113, 113, 0.9); }
-  .task.Low:not(.completed) { background: rgba(254, 240, 138, 0.9); }
-  .task.Medium:not(.completed) { background: rgba(134, 239, 172, 0.9); }
-  .task.High:not(.completed) { background: rgba(147, 197, 253, 0.9); }
-  .task.completed .task-title, .task.completed .task-priority {
-    text-decoration: line-through;
-  }
-  .task.collapsed {
-    padding: 4px;
-  }
-  .task.collapsed .task-details { display: none; }
-  .task.collapsed .task-header {
-    margin-bottom: 0;
-    padding: 4px;
-  }
-  .task.collapsed .task-title {
-    font-size: 0.9rem;
-  }
-  .task.collapsed .task-priority {
-    font-size: 0.8rem;
-  }
-  .task-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    padding: 15px;
     margin-bottom: 12px;
+    border-radius: 12px;
+    transition: var(--transition);
+    cursor: grab;
+    animation: fadeIn 0.3s ease;
   }
-  .task-title {
-    font-weight: 600;
-    font-size: 1.2rem;
-    color: var(--text-color);
+  .task.Low { background: rgba(254,240,138,0.9); } /* žuto */
+  .task.Medium { background: rgba(134,239,172,0.9); } /* zeleno */
+  .task.High { background: rgba(147,197,253,0.9); } /* plavo */
+  .task.completed {
+    background: rgba(239,68,68,0.9); /* crveno */
   }
-  .task-priority.Low { color: #15803d; font-size: 1rem; font-weight: 600; }
-  .task-priority.Medium { color: #c2410c; font-size: 1rem; font-weight: 600; }
-  .task-priority.High { color: #b91c1c; font-size: 1rem; font-weight: 600; }
-  .task-details { font-size: 1rem; color: var(--text-color); transition: var(--transition); }
-  .subtasks { margin: 12px 0 12px 15px; }
-  .subtasks p {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    font-size: 0.95rem;
+  .task.completed .task-title,
+  .task.completed .task-priority,
+  .task.completed .task-details {
+    text-decoration: line-through;
+    color: #fff;
   }
-  .subtasks p.completed { color: #b91c1c; text-decoration: line-through; }
-  .subtasks .toggle-btn {
-    color: #15803d;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-  }
-  .attachments img {
-    max-width: 120px;
-    max-height: 120px;
-    margin: 6px 6px 6px 0;
-    border-radius: 8px;
-    object-fit: cover;
-    cursor: pointer;
-    transition: transform 0.3s;
-  }
-  .attachments img:hover { transform: scale(1.1); }
-  .delete-attachment {
-    color: #b91c1c;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
+  .task-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .task-title { font-weight: 600; font-size: 1.1rem; }
+  .task-priority { font-size: 0.9rem; font-weight: 600; margin-left: 8px; }
+  .task-details { font-size: 0.95rem; }
+  .icon-btn {
+    background: transparent;
+    border: none;
+    width: 28px;
+    height: 28px;
     margin-left: 6px;
-  }
-  .collapse-toggle {
-    color: var(--text-color);
-    font-size: 1rem;
     cursor: pointer;
-    margin-right: 10px;
     transition: var(--transition);
   }
-  .collapse-toggle:hover {
-    color: var(--secondary-color);
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-  }
+  .icon-btn svg { width: 100%; height: 100%; fill: var(--text); }
+  .icon-btn:hover { transform: scale(1.3); }
+  .icon-btn:focus { outline: none; }
+  .subtasks { margin-top: 8px; }
+  .subtasks p { display: flex; justify-content: space-between; padding: 4px 0; }
+  .subtasks p.completed { text-decoration: line-through; color: #9ca3af; }
+  .toggle-btn { cursor: pointer; color: var(--primary); }
+  @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
   @media (max-width: 600px) {
-    .container { padding: 10px; }
-    .header h1 { font-size: 1.8rem; }
-    .task-container {
-      flex-direction: column;
-      gap: 10px;
-    }
-    .input-frame, .tasks-list { flex: 1; }
-    .btn, .file-input-label { padding: 10px 16px; font-size: 0.95rem; }
-    .task { padding: 15px; }
-    .task.collapsed { padding: 3px; }
-    .task.collapsed .task-header { padding: 3px; }
-    .task.collapsed .task-title { font-size: 0.85rem; }
-    .task.collapsed .task-priority { font-size: 0.75rem; }
-    .attachments img { max-width: 80px; max-height: 80px; }
+    body { padding: 12px; }
+    .header h1 { font-size: 1.5rem; }
+    .task { padding: 12px; }
+    .add-btn { width: 50px; height: 50px; font-size: 1.6rem; }
   }
 </style>
 </head>
 <body>
 <div class="container">
-  <div class="header">
-    <h1>Jakov's Task Manager</h1>
+  <div class="header"><h1>Jakov's Task Manager</h1></div>
+  <div class="input-toggle">
+    <button type="button" id="toggleInputBtn" class="add-btn" aria-label="Dodaj zadatak">+</button>
   </div>
-  <div class="task-container">
-    <div class="input-frame">
-      <div class="input-group">
-        <label for="taskTitle">Naziv zadatka</label>
-        <input type="text" id="taskTitle" placeholder="Unesite naziv zadatka" aria-label="Naziv zadatka" />
-      </div>
-      <div class="input-group">
-        <label for="taskDesc">Opis zadatka</label>
-        <textarea id="taskDesc" placeholder="Unesite opis zadatka" aria-label="Opis zadatka"></textarea>
-      </div>
-      <div class="input-group">
-        <label for="taskPriority">Prioritet zadatka</label>
-        <select id="taskPriority" aria-label="Prioritet zadatka">
-          <option value="Low">Nizak prioritet</option>
-          <option value="Medium">Srednji prioritet</option>
-          <option value="High">Visok prioritet</option>
-        </select>
-      </div>
-      <div class="file-input-wrapper">
-        <label for="taskAttachment">Prilozi</label>
-        <input type="file" id="taskAttachment" accept="image/*" multiple aria-label="Odaberi slike iz galerije" />
-        <label for="taskAttachment" class="file-input-label">Dodaj prilog</label>
-      </div>
-      <div class="input-group">
-        <label for="subtasksInput">Podzadaci (odvojeni zarezom)</label>
-        <input type="text" id="subtasksInput" placeholder="Unesite podzadatke" aria-label="Podzadaci" />
-      </div>
-      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-        <button class="btn" id="addTaskBtn" aria-label="Dodaj novi zadatak">Dodaj zadatak</button>
-        <button class="btn secondary" onclick="clearForm()" aria-label="Očisti obrazac">Očisti obrazac</button>
-        <button class="btn secondary" onclick="clearAllTasks()" aria-label="Obriši sve zadatke">Obriši sve</button>
-      </div>
+  <div class="input-frame" id="taskForm" style="display:none;">
+    <div class="input-group">
+      <label for="taskTitle">Naziv zadatka</label>
+      <input type="text" id="taskTitle" placeholder="Unesite naziv zadatka"/>
     </div>
-    <div class="tasks-list">
-      <div id="tasksList"></div>
+    <div class="input-group">
+      <label for="taskDesc">Opis zadatka</label>
+      <textarea id="taskDesc" placeholder="Unesite opis zadatka"></textarea>
+    </div>
+    <div class="input-group">
+      <label for="taskPriority">Prioritet</label>
+      <select id="taskPriority">
+        <option value="Low">Nizak</option>
+        <option value="Medium">Srednji</option>
+        <option value="High">Visok</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label for="taskAttachment">Prilozi</label>
+      <input type="file" id="taskAttachment" accept="image/*" multiple style="display:none;"/>
+      <label for="taskAttachment" class="file-input-label">Dodaj prilog</label>
+    </div>
+    <div class="input-group">
+      <label for="subtasksInput">Podzadaci (zarezom)</label>
+      <input type="text" id="subtasksInput" placeholder="Unesite podzadatke"/>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn" id="addTaskBtn">Dodaj</button>
+      <button class="btn secondary" onclick="clearForm()">Očisti</button>
+      <button class="btn secondary" onclick="clearAllTasks()">Obriši sve</button>
     </div>
   </div>
+  <div class="tasks-list"><div id="tasksList"></div></div>
 </div>
-
 <script>
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(error => console.error('Service Worker registration failed:', error));
-}
-
 let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
 let editingIndex = null;
 let draggedIndex = null;
-
 function saveTasks(){ localStorage.setItem('tasks', JSON.stringify(tasks)); }
-
-function sanitizeInput(input) {
-  const div = document.createElement('div');
-  div.textContent = input;
-  return div.innerHTML;
-}
-
+function sanitizeInput(input){ const d=document.createElement('div'); d.textContent=input; return d.innerHTML; }
 function renderTasks(){
-  const list = document.getElementById('tasksList');
-  list.innerHTML = '';
-  const sortedTasks = [...tasks].sort((a,b)=> a.completed - b.completed);
-  sortedTasks.forEach((task,indexSorted)=>{
-    const indexOriginal = tasks.indexOf(task);
-    const taskDiv = document.createElement('div');
-    taskDiv.className = `task ${task.priority}${task.completed ? ' completed' : ''}${task.collapsed ? ' collapsed' : ''}`;
-    taskDiv.draggable = true;
-    taskDiv.setAttribute('data-index', indexOriginal);
-    taskDiv.addEventListener('dragstart', () => {
-      taskDiv.classList.add('dragging');
-      draggedIndex = indexOriginal;
-    });
-    taskDiv.addEventListener('dragend', () => {
-      taskDiv.classList.remove('dragging');
-      draggedIndex = null;
-    });
-    taskDiv.addEventListener('dragover', (e) => e.preventDefault());
-    taskDiv.addEventListener('dragenter', (e) => e.preventDefault());
-    taskDiv.addEventListener('drop', () => {
-      if (draggedIndex !== null && draggedIndex !== indexOriginal) {
-        const [draggedTask] = tasks.splice(draggedIndex, 1);
-        tasks.splice(indexOriginal, 0, draggedTask);
-        saveTasks();
-        renderTasks();
+  const list=document.getElementById('tasksList');
+  list.innerHTML='';
+  tasks.forEach((task,i)=>{
+    const div=document.createElement('div');
+    div.className=`task ${task.priority} ${task.completed?'completed':''}`;
+    div.draggable=true;
+    div.addEventListener('dragstart',()=>draggedIndex=i);
+    div.addEventListener('drop',()=>{
+      if(draggedIndex!==null && draggedIndex!==i){
+        const [drag]=tasks.splice(draggedIndex,1);
+        tasks.splice(i,0,drag);
+        saveTasks(); renderTasks();
       }
     });
-    const subtasksHTML = (task.subtasks || []).map((sub,i)=>`
-      <p class='${sub.completed ? 'completed' : ''}'>
-        ${sanitizeInput(sub.title)}
-        <span class='toggle-btn' onclick='toggleSubtask(${indexOriginal},${i})' role='button' aria-label="${sub.completed ? 'Označi podzadatak kao nezavršen' : 'Označi podzadatak kao završen'}">
-          ${sub.completed ? 'Označi nezavršen' : 'Označi završen'}
+    const subtasksHTML=(task.subtasks||[]).map((s,j)=>`
+      <p class='${s.completed?'completed':''}'>
+        ${sanitizeInput(s.title)}
+        <span class='toggle-btn' onclick='toggleSubtask(${i},${j})'>
+          ${s.completed?'↩️':'✔️'}
         </span>
       </p>`).join('');
-    taskDiv.innerHTML = `
-      <div class='task-header'>
-        <span class='collapse-toggle' onclick='toggleCollapse(${indexOriginal})' role='button' aria-label="${task.collapsed ? 'Proširi zadatak' : 'Smanji zadatak'}" aria-expanded="${!task.collapsed}"> ${task.collapsed ? '▶' : '▼'}</span>
-        <span class='task-title'>${sanitizeInput(task.title)}</span>
-        <span class='task-priority ${task.priority}'>[${task.priority}]</span>
+    div.innerHTML=`
+      <div class="task-header">
+        <span class="task-title">${sanitizeInput(task.title)}</span>
+        <span class="task-priority">[${task.priority}]</span>
         <div>
-          <button class='btn' onclick='editTask(${indexOriginal})' aria-label='Uredi zadatak'>Uredi</button>
-          <button class='btn' onclick='toggleComplete(${indexOriginal})' aria-label='${task.completed ? 'Označi zadatak kao nezavršeno' : 'Označi zadatak kao završeno'}'>${task.completed ? 'Označi nezavršeno' : 'Završi'}</button>
-          <button class='btn' onclick='deleteTask(${indexOriginal})' aria-label='Obriši zadatak'>Obriši</button>
+          <button class="icon-btn" onclick="editTask(${i})" aria-label="Uredi">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 0 0-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 0 0 0-2.828z"/><path fill-rule="evenodd" d="M2 15a1 1 0 0 1 1-1h12v2H3a1 1 0 0 1-1-1z" clip-rule="evenodd"/></svg>
+          </button>
+          <button class="icon-btn" onclick="toggleComplete(${i})" aria-label="Završi">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 0 1 0 1.414l-8.25 8.25a1 1 0 0 1-1.414 0l-4.25-4.25a1 1 0 0 1 1.414-1.414l3.543 3.543 7.543-7.543a1 1 0 0 1 1.414 0z"/></svg>
+          </button>
+          <button class="icon-btn" onclick="deleteTask(${i})" aria-label="Obriši">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 0 0-1 1v1H4.5a.5.5 0 0 0 0 1H5v10a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V5h.5a.5.5 0 0 0 0-1H12V3a1 1 0 0 0-1-1H9zM7 7a1 1 0 0 1 2 0v7a1 1 0 0 1-2 0V7zm5-1a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0V7a1 1 0 0 0-1-1z" clip-rule="evenodd"/></svg>
+          </button>
         </div>
       </div>
-      <div class='task-details'>
-        <p>${sanitizeInput(task.desc || '')}</p>
-        <div class='attachments'>${(task.attachments || []).map((att,i)=>`
-          <img src='${att}' onclick='viewImage("${att}")' alt='Prilog ${i + 1}' role='button' aria-label='Pogledaj prilog' />
-          <span class='delete-attachment' onclick='deleteAttachment(${indexOriginal},${i})' role='button' aria-label='Obriši prilog'>✖</span>
-        `).join('')}</div>
-        <div class='subtasks' id='subtasks-${indexOriginal}'>${subtasksHTML}</div>
-      </div>
-    `;
-    list.appendChild(taskDiv);
+      <div class="task-details">
+        <p>${sanitizeInput(task.desc||'')}</p>
+        <div class="subtasks">${subtasksHTML}</div>
+      </div>`;
+    list.appendChild(div);
   });
 }
-
 function addTask(){
-  const title = document.getElementById('taskTitle').value.trim();
-  const desc = document.getElementById('taskDesc').value.trim();
-  const priority = document.getElementById('taskPriority').value;
-  const fileInput = document.getElementById('taskAttachment');
-  const subtasksInput = document.getElementById('subtasksInput').value.trim();
-  const subtasksArray = subtasksInput ? subtasksInput.split(',').map(st => ({title: st.trim(), completed: false})) : [];
-  
-  if(title === '') {
-    alert('Molimo unesite naziv zadatka.');
-    return;
+  const title=document.getElementById('taskTitle').value.trim();
+  const desc=document.getElementById('taskDesc').value.trim();
+  const priority=document.getElementById('taskPriority').value;
+  const subtasksInput=document.getElementById('subtasksInput').value.trim();
+  const subtasks=subtasksInput?subtasksInput.split(',').map(s=>({title:s.trim(),completed:false})):[];
+  if(!title){alert("Unesite naziv zadatka.");return;}
+  if(editingIndex!==null){
+    tasks[editingIndex]={...tasks[editingIndex],title,desc,priority,subtasks};
+    editingIndex=null;
+  }else{
+    tasks.push({title,desc,priority,subtasks,completed:false});
   }
-  if(title.length > 100) {
-    alert('Naziv zadatka ne smije biti duži od 100 znakova.');
-    return;
-  }
-  if(desc.length > 500) {
-    alert('Opis zadatka ne smije biti duži od 500 znakova.');
-    return;
-  }
-  
-  let attachments = [];
-  const files = fileInput.files || [];
-  
-  if(files.length > 0){
-    for(const file of files){
-      if(!file.type.startsWith('image/')) {
-        alert('Dozvoljene su samo slike.');
-        return;
-      }
-      if(file.size > 5 * 1024 * 1024) {
-        alert('Datoteka je prevelika. Maksimalna veličina je 5MB.');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = function(e){
-        attachments.push(e.target.result);
-        if(attachments.length === files.length){
-          saveOrUpdateTask(title, desc, attachments, priority, subtasksArray);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  } else {
-    saveOrUpdateTask(title, desc, attachments, priority, subtasksArray);
-  }
+  clearForm(); saveTasks(); renderTasks();
 }
-
-function saveOrUpdateTask(title, desc, attachments, priority, subtasks){
-  if(editingIndex !== null){
-    tasks[editingIndex].title = title;
-    tasks[editingIndex].desc = desc;
-    tasks[editingIndex].attachments = attachments;
-    tasks[editingIndex].priority = priority;
-    tasks[editingIndex].subtasks = subtasks;
-    tasks[editingIndex].collapsed = tasks[editingIndex].completed;
-    editingIndex = null;
-  } else {
-    tasks.push({ title, desc, subtasks, attachments, completed: false, priority, collapsed: false });
-  }
-  clearForm();
-  saveTasks();
-  renderTasks();
+function clearForm(){
+  document.getElementById('taskTitle').value='';
+  document.getElementById('taskDesc').value='';
+  document.getElementById('taskPriority').value='Low';
+  document.getElementById('subtasksInput').value='';
+  editingIndex=null;
 }
-
-function clearForm() {
-  document.getElementById('taskTitle').value = '';
-  document.getElementById('taskDesc').value = '';
-  document.getElementById('taskPriority').value = 'Low';
-  document.getElementById('taskAttachment').value = '';
-  document.getElementById('subtasksInput').value = '';
-  editingIndex = null;
+function editTask(i){
+  const t=tasks[i];
+  document.getElementById('taskTitle').value=t.title;
+  document.getElementById('taskDesc').value=t.desc;
+  document.getElementById('taskPriority').value=t.priority;
+  document.getElementById('subtasksInput').value=t.subtasks.map(s=>s.title).join(', ');
+  editingIndex=i;
+  document.getElementById('taskForm').style.display='block';
 }
-
-function editTask(index){
-  const task = tasks[index];
-  document.getElementById('taskTitle').value = task.title;
-  document.getElementById('taskDesc').value = task.desc;
-  document.getElementById('taskPriority').value = task.priority;
-  document.getElementById('subtasksInput').value = task.subtasks.map(st => st.title).join(', ');
-  editingIndex = index;
-}
-
-function deleteTask(index){
-  if(confirm('Jeste li sigurni da želite obrisati ovaj zadatak?')) {
-    tasks.splice(index,1);
-    saveTasks();
-    renderTasks();
-  }
-}
-
-function clearAllTasks(){
-  if(confirm('Jeste li sigurni da želite obrisati sve zadatke?')) {
-    tasks = [];
-    saveTasks();
-    renderTasks();
-  }
-}
-
-function toggleComplete(index){
-  tasks[index].completed = !tasks[index].completed;
-  tasks[index].collapsed = tasks[index].completed;
-  saveTasks();
-  renderTasks();
-}
-
-function toggleCollapse(index){
-  tasks[index].collapsed = !tasks[index].collapsed;
-  saveTasks();
-  renderTasks();
-}
-
-function toggleSubtask(taskIndex, subIndex){
-  tasks[taskIndex].subtasks[subIndex].completed = !tasks[taskIndex].subtasks[subIndex].completed;
-  saveTasks();
-  renderTasks();
-}
-
-function viewImage(src){
-  const imgWindow = window.open('');
-  imgWindow.document.write(`<img src="${src}" style="width:100%; height:auto; background:#000;" alt="Povećani prikaz priloga" />`);
-}
-
-function deleteAttachment(taskIndex, attachmentIndex){
-  if(confirm('Jeste li sigurni da želite obrisati ovaj prilog?')) {
-    tasks[taskIndex].attachments.splice(attachmentIndex,1);
-    saveTasks();
-    renderTasks();
-  }
-}
-
-document.getElementById('addTaskBtn').addEventListener('click', addTask);
+function deleteTask(i){ if(confirm("Obrisati zadatak?")){tasks.splice(i,1); saveTasks(); renderTasks();} }
+function clearAllTasks(){ if(confirm("Obrisati sve zadatke?")){tasks=[]; saveTasks(); renderTasks();} }
+function toggleComplete(i){ tasks[i].completed=!tasks[i].completed; saveTasks(); renderTasks(); }
+function toggleSubtask(i,j){ tasks[i].subtasks[j].completed=!tasks[i].subtasks[j].completed; saveTasks(); renderTasks(); }
+document.getElementById('addTaskBtn').addEventListener('click',addTask);
+document.getElementById('toggleInputBtn').addEventListener('click',()=>{
+  const f=document.getElementById('taskForm');
+  f.style.display=f.style.display==='none'?'block':'none';
+});
 renderTasks();
 </script>
-
 </body>
 </html>
